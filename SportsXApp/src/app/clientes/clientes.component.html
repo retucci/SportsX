@@ -1,0 +1,186 @@
+<div class="form-inline mr-auto">
+  <div class="form-group md-2">
+    Digite para filtrar: 
+      <input type="text" class="form-control mr-2" placeholder="Buscar" [(ngModel)]="filtroLista">
+  </div>
+  <h5>Filtro: {{filtroLista}}</h5>
+</div>
+<div>
+  <button class="btn btn-success" (click)="novoCliente(template)">
+    <i class="fa fa-plus-circle"></i>
+    Novo Cliente
+  </button>
+</div>
+
+<table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th></th>
+      <th>ID</th>
+      <th>Tipo</th>
+      <th>Nome</th>
+      <th>Razão Social</th>
+      <th>Documento</th>
+      <th>CEP</th>
+      <th>Classificação</th>
+      <th>E-mail</th>
+    </tr>
+  </thead>
+  <tbody *ngIf="clientes && clientes.length">
+    <tr *ngFor="let cliente of clientesFiltrados">
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-primary" tooltip="Editar" (click)="editarCliente(cliente,template);">
+            <i class="fa fa-edit"></i>
+          </button>
+          <button class="btn btn-danger" tooltip="Excluir" (click)="excluirCliente(cliente,confirm);">
+            <i class="fa fa-eraser"></i>
+          </button>
+        </div>
+      </td>
+      <td>{{cliente.id}}</td>
+      <td>{{(cliente.tipo == 0) ? 'Física' : 'Jurídica'}}</td>
+      <td>{{cliente.nome}}</td>
+      <td>{{cliente.razaoSocial | uppercase}}</td>
+      <td>{{cliente.cpf | mask:'000.000.000-00'}}{{cliente.cnpj | mask:'00.000.000/0000-00'}}</td>
+      <td>{{cliente.cep | mask:'00-000-000'}}</td>
+      <td>{{(cliente.classificacao == 0) ? 'Inativo' : (cliente.classificacao == 1) ? 'Ativo' : 'Preferencial'}}</td>
+      <td>{{cliente.email}}</td>
+    </tr>
+  </tbody>
+  <tfoot *ngIf="clientes!= null && !clientes.length">
+    <td colspan="8" class="text-center">
+      <h3>
+        Nenhum cliente encontrado!
+      </h3>
+    </td>
+  </tfoot>
+</table>
+
+<div bsModal #template="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-sizes-name1" class="modal-title pull-left">Cliente</h4>
+        <button type="button" class="close pull-right" (click)="template.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="registerForm">
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Tipo</label>
+              <select class="form-control" formControlName="tipo"
+              [ngClass]="{'is-invalid': registerForm.get('tipo').errors && registerForm.get('tipo').touched}">
+                <option value="0">Física</option>
+                <option value="1">Jurídica</option>
+              </select>
+              <div *ngIf="registerForm.get('tipo').hasError('required') && registerForm.get('tipo').touched" class="invalid-feedback">
+                O Tipo é obrigatório
+             </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12" [hidden]="registerForm.value.tipo != 0">
+              <label>CPF</label>
+              <input type="text" class="form-control" formControlName="cpf" placeholder="Informe o CPF" [mask]="'000.000.000-00'">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12" [hidden]="registerForm.value.tipo != 1">
+              <label>CNPJ</label>
+              <input type="text" class="form-control" formControlName="cnpj" placeholder="Informe o CNPJ" [mask]="'00.000.000/0000-00'">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Classificação</label>
+              <select class="form-control" formControlName="classificacao"
+              [ngClass]="{'is-invalid': registerForm.get('classificacao').errors && registerForm.get('classificacao').touched}">
+                <option value="0">Inativo</option>
+                <option value="1">Ativo</option>
+                <option value="2">Preferencial</option>
+              </select>
+              <div *ngIf="registerForm.get('classificacao').hasError('required') && registerForm.get('classificacao').touched" class="invalid-feedback">
+                A Classificação é obrigatória
+              </div>
+            </div>
+          </div>  
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Nome</label>
+              <input type="text" class="form-control is-invalid" 
+              [ngClass]="{'is-invalid': registerForm.get('nome').errors && registerForm.get('nome').touched}" 
+              formControlName="nome" placeholder="Informe o Nome">
+              <div *ngIf="registerForm.get('nome').hasError('required') && registerForm.get('nome').touched" class="invalid-feedback">
+                 O Nome é obrigatório
+              </div>
+              <div *ngIf="registerForm.get('nome').hasError('maxlength') && registerForm.get('nome').touched" class="invalid-feedback">
+                O Nome deve ter no máximo 100 caracteres
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <label>Razão Social</label>
+              <input type="text" class="form-control" formControlName="razaoSocial" placeholder="Informe a Razão Social">
+            </div>
+          </div>  
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>CEP</label>
+              <input type="text" class="form-control" formControlName="cep" placeholder="Informe o CEP" [mask]="'00-000-000'">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>Email</label>
+              <input type="text" class="form-control" 
+              [ngClass]="{'is-invalid': registerForm.get('email').errors && registerForm.get('email').touched}" 
+              formControlName="email" placeholder="Informe o E-mail">
+              <div *ngIf="registerForm.get('email').hasError('required') && registerForm.get('email').touched" class="invalid-feedback">
+                O E-mail é obrigatório
+             </div>
+             <div *ngIf="registerForm.get('email').hasError('email') && registerForm.get('email').touched" class="invalid-feedback">
+               Informe um e-mail válido
+             </div>
+            </div>
+          </div> 
+        </form>
+      </div>
+      <div class="modal-footer d-flex">
+        <button class="btn btn-secondary" (click)="template.hide()">
+          Fechar
+        </button>
+        <button class="btn btn-primary ml-auto" [disabled]="!registerForm.valid" (click)="salvarAlteracao(template)">
+          Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+	<div class="modal-dialog modal-sm">
+  		<div class="modal-content">
+    		<div class="modal-header">
+      			<h4 class="modal-title pull-left">
+        			Deletar Cliente
+      			</h4>
+      			<button type="button" class="close pull-right" (click)="confirm.hide()" aria-label="Close">
+        			<span aria-hidden="true">&times;</span>
+      			</button>
+    		</div>
+    		<div class="modal-body">
+      			<p>{{msgDeletarCliente}}</p>
+    		</div>    
+    		<div class="modal-footer btn-group d-flex">      
+      			<button type="button" class="btn btn-outline-primary" (click)="confirm.hide()">
+        			Cancelar
+      			</button>
+      			<button type="button" class="btn btn-outline-danger" (click)="confirmeDelete(confirm)">
+          			Deletar
+        		</button>
+    		</div>
+  		</div>
+	</div>
+</div>

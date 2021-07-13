@@ -1,0 +1,30 @@
+[
+    {
+    "tipo" : 0,
+    "nome": "Nadir",
+    "razaoSocial": "",
+    "cpf": "40402927826",
+    "cnpj": "",
+    "cep": "15061090",
+    "classificacao": 1,
+    "email": "nadir@gmail.com"
+},
+{
+    "tipo" : 0,
+    "nome": "Guilherme Garbo Retucci",
+    "razaoSocial": "",
+    "cpf": "40402927826",
+    "cnpj": "",
+    "cep": "15061090",
+    "classificacao": 1,
+    "email": "guilhermegarboretucci@gmail.com",
+    "telefones": [
+        {
+            "numero" : "1732245534"
+        },
+        {
+            "numero" : "17991039869"
+        }
+    ]
+}
+]

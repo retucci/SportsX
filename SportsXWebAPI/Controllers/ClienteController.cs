@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SportsXDomain;
 using SportsXRepository;
 using SportsXWebAPI.Dto;
+using System.Linq;
 
 namespace SportsXWebAPI.Controllers
 {
@@ -13,13 +14,14 @@ namespace SportsXWebAPI.Controllers
     [ApiController]
     public class ClienteController : ControllerBase
     {
+        public ClienteController(ISportsXRepository _repository, IMapper _mapper)
+        {
+            this._repository = _repository;
+            this._mapper = _mapper;
+
+        }
         private ISportsXRepository _repository { get; }
         private IMapper _mapper { get; }
-        public ClienteController(ISportsXRepository repository, IMapper mapper)
-        {
-            this._mapper = mapper;
-            this._repository = repository;
-        }
 
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -31,9 +33,9 @@ namespace SportsXWebAPI.Controllers
 
                 return Ok(resultsDto);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Clientes não encontrados");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Clientes não encontrados: {ex.Message}");
             }
         }
 
@@ -46,9 +48,9 @@ namespace SportsXWebAPI.Controllers
                 var resultsDto = _mapper.Map<ClienteDto>(results);
                 return Ok(resultsDto);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Cliente não encontrado");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Cliente não encontrado: {ex.Message}");
             }
         }
 
@@ -61,9 +63,9 @@ namespace SportsXWebAPI.Controllers
                 var resultsDto = _mapper.Map<IEnumerable<ClienteDto>>(results);
                 return Ok(resultsDto);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Cliente não encontrado");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Clientes não encontrados por nome: {ex.Message}");
             }
         }
 
@@ -75,14 +77,14 @@ namespace SportsXWebAPI.Controllers
                 var cliente = _mapper.Map<Cliente>(model);
                 _repository.Add(cliente);
                 if (await _repository.SaveChangesAsync())
-                    return Created($"/api/cliente/{model.Id}", _mapper.Map<ClienteDto>(model));
+                    return Created($"/api/cliente/{cliente.Id}", _mapper.Map<ClienteDto>(cliente));
             }
             catch (System.Exception ex)
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, $"Não foi possível inserir Cliente : {ex.Message}");
             }
 
-            return BadRequest("Deu erro");
+            return BadRequest("Error Post");
         }
 
         [HttpPut("{ClienteId}")]
@@ -90,11 +92,19 @@ namespace SportsXWebAPI.Controllers
         {
             try
             {
+                // Recupero os telefones da requisição
+                var lstIDsTel = model.Telefones.Select(s => s.Id).ToList();
+
                 var cliente = await _repository.GetClientesById(ClienteId);
                 if (cliente == null)
                     return NotFound("Cliente não encontrado para atualizar");
 
-                _mapper.Map(model,cliente);
+                // Armazeno e deleto os telefones que estão no banco e não vieram pela requisição
+                var telefones = cliente.Telefones.Where(w => !lstIDsTel.Contains(w.Id)).ToList();
+                if (telefones.Count > 0)
+                    telefones.ForEach(f => _repository.Delete(f));
+
+                _mapper.Map(model, cliente);
                 _repository.Update(cliente);
 
                 if (await _repository.SaveChangesAsync())
@@ -105,7 +115,7 @@ namespace SportsXWebAPI.Controllers
                 return this.StatusCode(StatusCodes.Status500InternalServerError, $"Não foi possível atualizar Cliente : {ex.Message}");
             }
 
-            return BadRequest("Deu erro");
+            return BadRequest("Error Put");
         }
 
         [HttpDelete("{ClienteId}")]
@@ -121,12 +131,12 @@ namespace SportsXWebAPI.Controllers
                 if (await _repository.SaveChangesAsync())
                     return Ok();
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Cliente não encontrado");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Cliente não encontrado: {ex.Message}");
             }
 
-            return BadRequest("Deu erro");
+            return BadRequest("Error Delete");
         }
     }
 }

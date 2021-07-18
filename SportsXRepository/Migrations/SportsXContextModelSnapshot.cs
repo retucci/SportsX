@@ -67,7 +67,7 @@ namespace SportsXRepository.Migrations
 
                     b.Property<string>("Numero")
                         .IsRequired()
-                        .HasColumnType("varchar(14)");
+                        .HasColumnType("varchar(11)");
 
                     b.HasKey("Id");
 

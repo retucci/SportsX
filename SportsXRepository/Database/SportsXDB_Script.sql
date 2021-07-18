@@ -1,3 +1,5 @@
+-- dotnet ef --startup-project ../SportsXWebAPI migrations script
+
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -26,7 +28,7 @@ GO
 
 CREATE TABLE [ClienteTelefones] (
     [Id] int NOT NULL IDENTITY,
-    [Numero] varchar(14) NOT NULL,
+    [Numero] varchar(11) NOT NULL,
     [ClienteId] int NOT NULL,
     CONSTRAINT [PK_ClienteTelefones] PRIMARY KEY ([Id]),
     CONSTRAINT [FK_ClienteTelefones_Clientes_ClienteId] FOREIGN KEY ([ClienteId]) REFERENCES [Clientes] ([Id]) ON DELETE CASCADE
@@ -39,6 +41,6 @@ CREATE INDEX [IX_ClienteTelefones_ClienteId] ON [ClienteTelefones] ([ClienteId])
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20210713003552_SportsXDB', N'3.1.0');
+VALUES (N'20210718213115_SportsXMigration', N'3.1.0');
 
 GO

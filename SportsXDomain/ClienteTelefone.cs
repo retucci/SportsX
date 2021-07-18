@@ -7,7 +7,7 @@ namespace SportsXDomain
     {
         public int Id { get; set; }
         
-        [Column(TypeName = "varchar(14)")]
+        [Column(TypeName = "varchar(11)")]
         [Required(AllowEmptyStrings = false)] 
         public string Numero { get; set; }
         

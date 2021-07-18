@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Configuration;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SportsXRepository;
 using SportsXRespository;
+using System.IO;
 
 namespace SportsXWebAPI
 {
@@ -34,7 +36,8 @@ namespace SportsXWebAPI
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
             //Injeção do Contexto
-            services.AddDbContext<SportsXContext>(x=> x.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionMDF")));
+            var conn = Configuration.GetConnectionString("DefaultConnectionMDF").Replace("%ROOTPATH%", Directory.GetParent(Environment.CurrentDirectory).ToString());
+            services.AddDbContext<SportsXContext>(x=> x.UseSqlServer(conn));
             //Injeção do Repositório no Controller
             services.AddScoped<ISportsXRepository,SportsXRepo>();
             //Injeção dos Dtos
